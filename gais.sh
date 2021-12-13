@@ -16,7 +16,10 @@ echo "
 Gianmarco's Arch Installer Script
 (C) 2021 Gianmarco Gargiulo - GPL v3
 
-------------------------------------
+WARNING: this script is experimental.
+Use at your own risk!
+
+-------------------------------------
 "
 
 
@@ -28,8 +31,18 @@ loadkeys it
 timedatectl set-ntp true
 
 lsblk
-echo "You'll be asked for where to install your OS.
-Make an EFI partition (min 300M) if you're on UEFI, optionally a swap partition (min 512M) and a root partition (rest of the space). If you're on traditional BIOS (MBR) make a 1MB 'BIOS Boot' partition and a 256MB EFI partition. For more info go RTFM at wiki.archlinux.org.
+echo "You'll be asked for where to install your OS. Use cfdisk to partition the drive.
+These are some reccommended partition schemes.
+For a UEFI system:
+    Part. 1 = EFI, min 300M
+    Part. 2 = root (where the actual system will be installed)
+    Part. 3 = swap (optional), min 512M
+For a traditional BIOS / MBR system:
+    Part. 1 = BIOS Boot, 1M
+    Part. 2 = EFI, 256MB
+    Part. 3 = root (where the actual system will be installed)
+    Part. 4 = swap (optional), min 512M
+For more information go RTFM at wiki.archlinux.org.
 Type drives/partitions as full paths (e.g. '/dev/sda' or '/dev/sda1').
 Target drive: "
 read drive
@@ -78,7 +91,7 @@ locale-gen
 echo "LANG=it_IT.UTF-8" > /etc/locale.conf
 echo "KEYMAP=it" > /etc/vconsole.conf
 
-echo "Hostname: "
+echo "Type a hostname for your system: "
 read hostname
 echo $hostname > /etc/hostname
 echo "127.0.0.1       localhost" >> /etc/hosts
