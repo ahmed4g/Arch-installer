@@ -119,9 +119,7 @@ fi
 sed -i 's/GRUB_TIMEOUT=5/GRUB_TIMEOUT=0/g' /etc/default/grub
 grub-mkconfig -o /boot/grub/grub.cfg
 
-pacman -S --noconfirm xorg-server sddm plasma akregator ark audiocd-kio dolphin dolphin-plugins elisa ffmpegthumbs filelight gwenview k3b kaddressbook kate kcalc kcharselect kcolorchooser kdeconnect kdegraphics-thumbnailers kdenetwork-filesharing kdenlive kdialog kio-extras kleopatra kmail konsole konversation krdc krfb krita ktorrent markdownpart okular partitionmanager spectacle svgpart yakuake
-pacman -R pulseaudio
-pacman -S mpv pipewire-pulse zsh rsync pavucontrol-qt opendoas
+pacman -S --noconfirm xorg sddm bspwm sxhkd dunst stalonetray ark audiocd-kio dolphin dolphin-plugins ffmpegthumbs gwenview kate kcalc kcharselect kdegraphics-thumbnailers kdenetwork-filesharing kdialog kio-extras konsole markdownpart okular partitionmanager spectacle svgpart yakuake git mpv pipewire-pulse zsh rsync pavucontrol-qt opendoas networkmanager htop ttf-roboto ttf-roboto-mono python-dbus unzip exa rofi zsh-autosuggestions
 
 systemctl enable NetworkManager.service
 echo "permit persist keepenv :wheel as root" > /etc/doas.conf
@@ -130,11 +128,30 @@ echo "Username: "
 read username
 useradd -m -G wheel -s /bin/zsh $username
 passwd $username
-runuser -l $username -c 'cd && mkdir Git && cd Git && git clone https://aur.archlinux.org/yay-bin.git && cd yay-bin && makepkg -si && yay -S --noconfirm librewolf-bin librewolf-extension-dark-reader librewolf-extension-localcdn librewolf-extension-plasma-integration librewolf-extension-return-youtube-dislike-git librewolf-ublock-origin opendoas-sudo'
+
+sed '1,/^# Extra configuration$/d' /gais_part2.sh > /home/$username/gais_part3.sh
+chmod +x /home/$username/gais_part3.sh
+echo "
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Now for the last part of the installation you must reboot into your installed system, login to a tty as the $username user and run the gais_part3.sh script.
+"
+exit 0
+
+# Extra configuration
+cd && mkdir Git && cd Git && git clone https://aur.archlinux.org/yay-bin.git && cd yay-bin && makepkg -si && yay -S betterlockscreen picom-jonaburg-fix librewolf-bin librewolf-extension-dark-reader librewolf-extension-localcdn librewolf-ublock-origin opendoas-sudo polybar pfetch pywal-git pulseaudio-control zsh-theme-powerlevel10k-git qt5ct-kde
+
+cd && git init --bare dotfiles
+alias dots="/usr/bin/git --git-dir=$HOME/dotfiles/ --work-tree=$HOME"
+dots config --local status.showUntrackedFiles no
+dots remote add origin https://git.gianmarco.ga/gianmarco/dotfiles.git
+dots pull origin master
+
+wget https://github.com/zavoloklom/material-design-iconic-font/releases/download/2.2.0/material-design-iconic-font.zip && unzip material-design-iconic-font.zip && doas cp fonts/Material-Design-Iconic-Font.ttf /usr/share/fonts/TTF && rm -r fonts css material-design-iconic-font.zip
 
 echo "
-----------------------------------------------------------------------------------
+----------------------------------------------------------------
 
-Installation completed! You may now reboot into your freshly installed Arch Linux.
+Installation completed! Enjoy your freshly installed Arch Linux.
 (C) 2021 Gianmarco Gargiulo - GPL v3 - www.gianmarco.ga
 "
