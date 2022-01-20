@@ -14,7 +14,7 @@ echo "
  ╚═════╝ ╚═╝  ╚═╝╚═╝╚══════╝
                             
 Gianmarco's Arch Installer Script
-(C) 2021 Gianmarco Gargiulo - GPL v3
+(C) 2022 Gianmarco Gargiulo - GPL v3
 
 WARNING: this script is experimental.
 Use at your own risk!
@@ -70,6 +70,10 @@ fi
 mount $partition /mnt 
 pacstrap /mnt base base-devel linux-zen linux-zen-headers
 genfstab -U /mnt >> /mnt/etc/fstab
+read -p "Do you want to do a manual review of the fstab? [y/n] " answer
+if [[ $answer = y ]] ; then
+  nano /mnt/etc/fstab
+fi
 
 sed '1,/^# Configuration$/d' gais.sh > /mnt/gais_part2.sh
 chmod +x /mnt/gais_part2.sh
@@ -119,10 +123,11 @@ fi
 sed -i 's/GRUB_TIMEOUT=5/GRUB_TIMEOUT=0/g' /etc/default/grub
 grub-mkconfig -o /boot/grub/grub.cfg
 
-pacman -S --noconfirm xorg sddm bspwm sxhkd dunst stalonetray ark audiocd-kio dolphin dolphin-plugins ffmpegthumbs gwenview kate kcalc kcharselect kdegraphics-thumbnailers kdenetwork-filesharing kdialog kio-extras konsole markdownpart okular partitionmanager spectacle svgpart yakuake git mpv pipewire-pulse zsh rsync pavucontrol-qt opendoas networkmanager htop ttf-roboto ttf-roboto-mono python-dbus unzip exa rofi zsh-autosuggestions
+pacman -S --noconfirm xorg sddm bspwm sxhkd dunst ark audiocd-kio dolphin dolphin-plugins ffmpegthumbs gwenview kate kcalc kcharselect kdegraphics-thumbnailers kdenetwork-filesharing kdialog kio-extras konsole markdownpart okular partitionmanager spectacle svgpart yakuake git mpv pipewire-pulse zsh rsync pavucontrol-qt opendoas networkmanager htop ttf-roboto ttf-roboto-mono python-dbus unzip exa rofi zsh-autosuggestions nano kwallet-pam breeze qlipper slop vlc
 
 systemctl enable NetworkManager.service
 echo "permit persist keepenv :wheel as root" > /etc/doas.conf
+echo "%wheel ALL=(ALL) ALL" >> /etc/sudoers
 echo "Create your own user account. It will have administrative privileges (wheel)."
 echo "Username: "
 read username
@@ -130,16 +135,17 @@ useradd -m -G wheel -s /bin/zsh $username
 passwd $username
 
 sed '1,/^# Extra configuration$/d' /gais_part2.sh > /home/$username/gais_part3.sh
+chown $username /home/$username/gais_part3.sh
 chmod +x /home/$username/gais_part3.sh
 echo "
-------------------------------------------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
 
 Now for the last part of the installation you must reboot into your installed system, login to a tty as the $username user and run the gais_part3.sh script.
 "
 exit 0
 
 # Extra configuration
-cd && mkdir Git && cd Git && git clone https://aur.archlinux.org/yay-bin.git && cd yay-bin && makepkg -si && yay -S betterlockscreen picom-jonaburg-fix librewolf-bin librewolf-extension-dark-reader librewolf-extension-localcdn librewolf-ublock-origin opendoas-sudo polybar pfetch pywal-git pulseaudio-control zsh-theme-powerlevel10k-git qt5ct-kde
+cd && mkdir Git && cd Git && git clone https://aur.archlinux.org/yay-bin.git && cd yay-bin && makepkg -si && yay -S betterlockscreen picom-jonaburg-fix librewolf-bin librewolf-extension-dark-reader librewolf-extension-localcdn librewolf-ublock-origin opendoas-sudo polybar pfetch pywal-git pulseaudio-control zsh-theme-powerlevel10k-git qt5ct-kde polkit-dumb-agent-git
 
 cd && git init --bare dotfiles
 alias dots="/usr/bin/git --git-dir=$HOME/dotfiles/ --work-tree=$HOME"
@@ -148,6 +154,9 @@ dots remote add origin https://git.gianmarco.ga/gianmarco/dotfiles.git
 dots pull origin master
 
 wget https://github.com/zavoloklom/material-design-iconic-font/releases/download/2.2.0/material-design-iconic-font.zip && unzip material-design-iconic-font.zip && doas cp fonts/Material-Design-Iconic-Font.ttf /usr/share/fonts/TTF && rm -r fonts css material-design-iconic-font.zip
+
+sudo systemctl enable sddm.service
+sudo sed -i "s/^Exec=bspwm$/Exec=bash $HOME/Scripts/bspwm.sh/" /usr/share/xsessions/bspwm.desktop
 
 echo "
 ----------------------------------------------------------------
