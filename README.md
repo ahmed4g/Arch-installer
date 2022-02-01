@@ -1,3 +1,4 @@
+copy from https://git.gianmarco.ga/gianmarco/gais
 # GAIS
 
 ## Gianmarco's Arch Installer Script
