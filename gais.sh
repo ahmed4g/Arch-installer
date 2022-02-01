@@ -25,9 +25,10 @@ Use at your own risk!
 
 # Main installation
 echo "Starting the main installation..."
-reflector --latest 20 --sort rate --country Italy --save /etc/pacman.d/mirrorlist --protocol http --download-timeout 5
+reflector --latest 20 --sort rate  --save /etc/pacman.d/mirrorlist --protocol https --download-timeout 5
 sed -i "s/^#ParallelDownloads = 5$/ParallelDownloads = 15/" /etc/pacman.conf
-loadkeys it
+pacman --noconfirm -Sy archlinux-keyring
+loadkeys us
 timedatectl set-ntp true
 
 lsblk
